@@ -1,0 +1,14 @@
+# Obsidian
+.obsidian/
+.obsidian.vimrc
+workspace.json
+workspace
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Git
+*.bak
+*.orig
