@@ -3,14 +3,14 @@
 Central reference for who I am — update as things change.
 
 ## Basics
-- **Name:** DataLore
-- **Location:**
-- **Time zone:**
-- **Occupation:**
+- **Name:** Joel / Yugi Jo (online)
+- **Location:** UK
+- **Time zone:** GMT/BST (UTC+0/+1)
+- **Occupation:** YouTuber, VFX Artist, 3D Modeller
 
 ## Links
-- GitHub:
-- Telegram:
+- GitHub: [Yugi-Jo](https://github.com/Yugi-Jo)
+- Telegram: 
 - Email:
 
 ## Health
