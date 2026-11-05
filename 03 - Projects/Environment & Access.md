@@ -32,3 +32,6 @@ Key facts about my computing setup, hosts, and remote access.
 - Anything saved to Hermes's persistent memory must **also** be mirrored into this vault.
 - Judge from the context of each prompt whether extra vault info is genuinely needed, then pull **only that piece**. Don't blanket-scan the vault — it burns tokens for no gain.
 - Memory is the bounded index; the vault is the deep store. A quick, targeted lookup when it clearly helps. Not a reflex.
+
+### Self-evaluation loop
+When a prompt needed vault context and it wasn't pulled, log the miss in [[Vault Usage Log]] and distil it into a trigger rule there. That log is the calibration record — the goal is that each miss produces a rule that would have fired at the right moment.
