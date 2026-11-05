@@ -30,5 +30,5 @@ Key facts about my computing setup, hosts, and remote access.
 
 ### Standing rule (set 31 Oct 2026)
 - Anything saved to Hermes's persistent memory must **also** be mirrored into this vault.
-- The vault must be **checked for relevant context before or during any prompt** that might need it — actively consider whether the task needs vault lookups to be done well, rather than waiting to be told.
-- Memory is the bounded index; the vault is the deep store. Treat vault checks as a routine step, not an exception.
+- Judge from the context of each prompt whether extra vault info is genuinely needed, then pull **only that piece**. Don't blanket-scan the vault — it burns tokens for no gain.
+- Memory is the bounded index; the vault is the deep store. A quick, targeted lookup when it clearly helps. Not a reflex.
