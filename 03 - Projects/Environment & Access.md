@@ -27,3 +27,8 @@ Key facts about my computing setup, hosts, and remote access.
 ## Obsidian Vault
 - Path: `OBSIDIAN_VAULT_PATH` = `/home/ubuntu/Documents/Obsidian Vault`
 - This is Hermes's extended memory — all personal data lives here
+
+### Standing rule (set 31 Oct 2026)
+- Anything saved to Hermes's persistent memory must **also** be mirrored into this vault.
+- The vault must be **checked for relevant context before or during any prompt** that might need it — actively consider whether the task needs vault lookups to be done well, rather than waiting to be told.
+- Memory is the bounded index; the vault is the deep store. Treat vault checks as a routine step, not an exception.
