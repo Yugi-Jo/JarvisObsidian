@@ -15,6 +15,22 @@ Two sections:
 
 A miss only counts as fixed once a trigger rule exists that would have fired at the right moment.
 
+### The retrospective check (primary detection method)
+
+Waiting for Joel to flag a miss is unreliable — if I didn't know the vault was needed, I won't know I skipped it.
+
+The better trigger: **whenever the vault is accessed mid-conversation, stop and look back over that conversation.** Ask whether any earlier prompt should have pulled the same context and was answered without it. The vault access proves the context was relevant to the thread, which is exactly what makes an earlier omission visible.
+
+So the routine is:
+
+1. Vault gets pulled for prompt N.
+2. Scan prompts 1 to N-1 in the same conversation.
+3. Any that clearly needed that context → log as a miss.
+4. Distil the trigger rule.
+5. Apply the rule for the rest of the conversation.
+
+This runs on vault access, not on being told.
+
 ---
 
 ## Misses
