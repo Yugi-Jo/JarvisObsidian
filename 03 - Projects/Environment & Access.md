@@ -20,7 +20,15 @@ Key facts about my computing setup, hosts, and remote access.
 - Close apps before file moves
 
 ## Google & OAuth
-- Google Cloud project: `cosmic-keep-511806-e0` (client `422217702558-scbcjcqfhtoblic9bg05comf7n5pnar4`)
+
+### Two accounts, deliberately split
+- **joelleeproductions@gmail.com** — Drive, Docs, Sheets, Gmail, Calendar. Also owns the Cloud project `cosmic-keep-511806-e0`. This is the token everything currently uses.
+- **joelvizard@gmail.com** — owns the **Yugi Jo YouTube channel**. Needs its own second token for YouTube Analytics. (Same username as the Windows PC account.)
+- Because they're split, the YouTube scopes stay off the main token. The second auth only needs YouTube scopes, so Drive/Docs don't get scope creep.
+- Design note: pull YouTube data with the joelvizard token, write the results Sheet with the joelleeproductions Drive token, so the analytics output lands in the Drive already in use.
+
+### Console config
+- Client `422217702558-scbcjcqfhtoblic9bg05comf7n5pnar4`, project `cosmic-keep-511806-e0`
 - Enable APIs separately in the API Library (Docs, Sheets, Drive, Gmail, Calendar — plus YouTube Data v3 + YouTube Analytics API when Studio is wanted)
 - **Publishing status must be In production** — Testing mode kills refresh tokens after 7 days, which is what caused the recurring weekly failures. Verify the status rather than assuming.
 - **2-step verification is now required for Cloud Console access** (enforced from 31 Oct 2026). Enable MFA on the Google account or the console is unreachable.
