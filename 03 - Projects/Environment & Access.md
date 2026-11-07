@@ -46,6 +46,14 @@ Full procedure, traps and prevention: skill **`google-auth-recovery`**.
 - Daily cron `google-token-healthcheck` runs `setup.py --check` and stays silent when healthy. It alerts on Telegram with the recovery route only when the token breaks — so failures are known before a task needs Google, not during one.
 - **Never re-auth "just in case"** — each re-auth issues a new refresh token for the same client/account/scopes, and exceeding ~50 invalidates the oldest.
 
+## Hosting large files (video)
+- `Yugi-Jo/JarvisObsidian` doubles as a scratch host for big media. Files go up as **GitHub release assets** (2GB per asset) because a normal `git push` refuses anything over 100MB.
+- The PAT in `~/.git-credentials` (user `Yugi-Jo`, repo admin) can create and delete releases there.
+- These uploads are **temporary by intent** — delete the release *and* its tag when Joel says wipe, so nothing lingers on the repo.
+- **The repo is public**, so any download link handed over is public too. Say so plainly each time.
+- After deleting a release, the download URL can still serve a **CDN-cached 200** for a while — re-check with a cache-buster before concluding a file is still live.
+- Procedure and the list of free hosts that actually work from this VPS: skill **`host-large-video-publicly`**.
+
 ## Obsidian Vault
 - Path: `OBSIDIAN_VAULT_PATH` = `/home/ubuntu/Documents/Obsidian Vault`
 - This is Hermes's extended memory — all personal data lives here
