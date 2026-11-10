@@ -27,6 +27,11 @@ Key facts about my computing setup, hosts, and remote access.
 - Because they're split, the YouTube scopes stay off the main token. The second auth only needs YouTube scopes, so Drive/Docs don't get scope creep.
 - Design note: pull YouTube data with the joelvizard token, write the results Sheet with the joelleeproductions Drive token, so the analytics output lands in the Drive already in use.
 
+### Token on disk
+- `~/.hermes/google_token.json` — the joelleeproductions token, auto-refreshing.
+- Scopes on it: Gmail, Calendar, Drive, Contacts, Sheets, Docs. YouTube scopes are deliberately absent; those belong on the separate joelvizard token.
+- Never use the Hermes connector picker for Google Workspace — go straight to the script.
+
 ### Console config
 - Client `422217702558-scbcjcqfhtoblic9bg05comf7n5pnar4`, project `cosmic-keep-511806-e0`
 - Enable APIs separately in the API Library (Docs, Sheets, Drive, Gmail, Calendar — plus YouTube Data v3 + YouTube Analytics API when Studio is wanted)
@@ -46,13 +51,34 @@ Full procedure, traps and prevention: skill **`google-auth-recovery`**.
 - Daily cron `google-token-healthcheck` runs `setup.py --check` and stays silent when healthy. It alerts on Telegram with the recovery route only when the token breaks — so failures are known before a task needs Google, not during one.
 - **Never re-auth "just in case"** — each re-auth issues a new refresh token for the same client/account/scopes, and exceeding ~50 invalidates the oldest.
 
+## Hermes Rescue (backup & restore)
+- Full agent snapshot in the **private** repo `Yugi-Jo/hermes-rescue`: config, skills, memory, cron jobs, plugins, scripts, small DBs, plus the credentials in an encrypted blob. Restores onto any new machine with one line.
+- Cron `hermes-rescue-backup` runs every 6 hours, silent unless it fails.
+- The rescue passphrase is **not** in this vault (the vault pushes to a public repo) — it lives in Joel's password manager and at `~/.hermes/.rescue-key` on the server.
+- Detail, restore steps and the token-scoping trap that made this fiddly: [[Hermes Rescue]]
+
 ## Hosting large files (video)
 - `Yugi-Jo/JarvisObsidian` doubles as a scratch host for big media. Files go up as **GitHub release assets** (2GB per asset) because a normal `git push` refuses anything over 100MB.
 - The PAT in `~/.git-credentials` (user `Yugi-Jo`, repo admin) can create and delete releases there.
 - These uploads are **temporary by intent** — delete the release *and* its tag when Joel says wipe, so nothing lingers on the repo.
 - **The repo is public**, so any download link handed over is public too. Say so plainly each time.
 - After deleting a release, the download URL can still serve a **CDN-cached 200** for a while — re-check with a cache-buster before concluding a file is still live.
-- Procedure and the list of free hosts that actually work from this VPS: skill **`host-large-video-publicly`**.
+- Procedure and the list of free hosts that actually work from this VPS: skill **`short-array`** (formerly `host-large-video-publicly` — renamed 2026-11-09, old name kept as an alias).
+
+## Voice / TTS
+- **Never use edge-tts here.** It is IP-blocked: Microsoft rejects the WSS handshake with 403 from this datacenter IP, and retries never fix it.
+- **Piper local TTS is the working default** (`tts.provider=piper`, voice `en_US-lessac-medium`), free and keyless.
+- `piper-tts` must be present in BOTH the live session venv and the pm-synced venv. After a `pm` rebuild the running session still reports it missing — install into the running venv with the bundled uv (that venv has no pip).
+- Gemini / GPT-4o-mini / ElevenLabs providers exist in config but have **no API keys** in `.env`.
+- Full setup, voice catalog and custom-voice wiring: skill **`hermes-agent`** -> `references/local-tts-piper.md`.
+
+## Long-term memory (Hindsight)
+- Runs as a local embedded daemon (port 9177) launched as `uvx hindsight-api`. `uv`/`uvx` are **not** on the shipped PATH, which is why memory ran dead from setup until 2026-11-09 — see [[2026-11-09]].
+- Pass-through shims in `~/.local/bin` (canonical copies in `~/.hermes/scripts/shims/`) resolve the newest bundled uv by glob, so a version bump can't break it again.
+- Fact extraction runs on `qwen/qwen3.5-9b`; it must have reasoning disabled in the daemon config or it burns its budget "thinking" and the retain times out.
+- Daily-ish cron `hindsight-memory-healthcheck` self-heals a missing shim or missing key and alerts only when memory is genuinely broken.
+- Writes are **async**: a queued write is only findable after the extraction stage finishes. Never judge a write by an immediate recall.
+- **Memory layers:** the always-on notes are the bounded index; this vault is the deep store; Hindsight holds distilled cross-session facts. Heavy detail belongs in a skill or this vault, with a short pointer in the notes.
 
 ## Obsidian Vault
 - Path: `OBSIDIAN_VAULT_PATH` = `/home/ubuntu/Documents/Obsidian Vault`
@@ -62,6 +88,18 @@ Full procedure, traps and prevention: skill **`google-auth-recovery`**.
 - Anything saved to Hermes's persistent memory must **also** be mirrored into this vault.
 - Judge from the context of each prompt whether extra vault info is genuinely needed, then pull **only that piece**. Don't blanket-scan the vault — it burns tokens for no gain.
 - Memory is the bounded index; the vault is the deep store. A quick, targeted lookup when it clearly helps. Not a reflex.
+
+### Hard rule (added 9 Nov 2026): the notes must never carry stale detail
+- The notes are an **index**, not a store. Rules and pointers only.
+- Before adding or editing a note, check whether an existing entry or vault note already covers it, and update or remove that one **in the same pass**. Two entries saying slightly different things is worse than one.
+- **Never evict or overwrite a note until the detail is confirmed to survive elsewhere** (vault, skill, or long-term memory). Removing something is only safe once it exists somewhere better.
+- When trimming, re-read the entry being cut and check each fact off against its new home. Detail that was unique to the notes is exactly what gets silently lost.
+- Pairs with the trigger-rule calibration loop below: a stale note is a miss that already happened.
+
+### Config file edits
+- `config.yaml` is hard-blocked from the agent's own file tools, deliberately: an injected agent editing it could quietly disable exec approvals. No setting toggles this.
+- **Route when a change is genuinely wanted:** Joel instructs it explicitly, then the agent edits via the shell, backs the file up first, changes only the named lines, and diffs against the backup to prove nothing else moved.
+- Prefer `hermes config set <key> <value>` for values. It cannot touch comments, which is why stale inline comments get left behind — noted on 9 Nov 2026 when the `# ~800 tokens` comment outlived the real 12,000-char value. Both comments were corrected the same day on Joel's instruction, so that example is history, not a live gap.
 
 ### Self-evaluation loop
 When a prompt needed vault context and it wasn't pulled, log the miss in [[Vault Usage Log]] and distil it into a trigger rule there. That log is the calibration record — the goal is that each miss produces a rule that would have fired at the right moment.

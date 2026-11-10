@@ -3,6 +3,7 @@
 Welcome to your long-term memory. This vault grows with every conversation — notes about you, your work, your preferences, and everything we learn together.
 
 ## Quick links
+- [[To Do|To Do]]
 - [[01 - About Me/Index|About Me]]
 - [[02 - Preferences/Index|Preferences]]
 - [[03 - Projects/Index|Projects]]
