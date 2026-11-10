@@ -46,6 +46,18 @@ Full plan and all figures: [[Home Purchase Plan]]
 - [ ] **Carbon fibre wearable chair** — design project. Concept and engineering checklist in
       [[Carbon Fibre Wearable Chair]].
 
+## Health
+
+Background in [[Ehlers-Danlos Syndrome Type 3 (hypermobility)]]
+
+- [ ] **Book a GP appointment about the foot pain.** Excruciating within a couple of minutes
+      of standing, noted 10 Nov. Ask for a podiatry referral and name plantar fasciitis, fat
+      pad atrophy and posterior tibial tendon dysfunction.
+- [ ] Make sure whoever assesses the feet knows about the hEDS, because the generic advice
+      (calf and plantar fascia stretching, arch rolling) can make hypermobile feet worse.
+- [ ] Same-day attention, not waiting: foot turns red, hot or swollen, changes shape, goes
+      cold or numb, or a blister or wound won't heal.
+
 ## Someday
 
 - [ ] Consider fixing the `uvx` PATH gap upstream instead of by local symlink, so a machine
