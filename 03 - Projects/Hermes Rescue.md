@@ -16,8 +16,11 @@ that file accurate; it is the thing that actually gets read when the server is g
   skills, `plugins/`, `pets/`, `desktop/`, the helper scripts in
   `~/.hermes/scripts/`, the cron job definitions (`cron/jobs.json`) and the small
   state DBs (`kanban.db`, `projects.db`, `shared-state.db`). Plain text, ~1023 files.
-- `secrets.tar.gz.gpg` — `.env`, `auth.json`, `google_token.json`,
-  `google_client_secret.json`, encrypted with the rescue passphrase (AES-256).
+- `secrets.tar.gz.gpg` — `.env`, `auth.json`, `google_client_secret.json`, and
+  **every** `google_token*.json` (the workspace token and the separate YouTube
+  one), encrypted with the rescue passphrase (AES-256). `backup.sh` globs
+  `google_token*.json` rather than naming tokens, so a new account's token is
+  captured without editing the script.
 - `backup.sh`, `bootstrap.sh`, `restore.sh`, `MANIFEST.json`, `README.md`.
 
 **Deliberately excluded:** `state.db` (chat history, 78 MB and growing — too heavy
