@@ -43,6 +43,8 @@ So the full YouTube auth is:
 `setup.py --auth-url --scopes youtube-manage --token-path ~/.hermes/google_token_youtube.json`
 then the same with `--auth-code '<pasted>'`. Sign in as **joelvizard@gmail.com**.
 
+Caveat: those flags live in the bundled skill script (`skills/productivity/google-workspace/scripts/setup.py`), so a Hermes update that replaces the skill could quietly drop them. If `--scopes`/`--token-path` ever report as unknown arguments, re-apply the override helper (`_apply_overrides`) — the two tokens themselves keep working either way, since they're plain files the script only reads.
+
 ### Console config
 - Client `422217702558-scbcjcqfhtoblic9bg05comf7n5pnar4`, project `cosmic-keep-511806-e0`
 - Enable APIs separately in the API Library (Docs, Sheets, Drive, Gmail, Calendar — plus YouTube Data v3 + YouTube Analytics API when Studio is wanted)
