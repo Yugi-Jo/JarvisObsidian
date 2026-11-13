@@ -23,14 +23,25 @@ Key facts about my computing setup, hosts, and remote access.
 
 ### Two accounts, deliberately split
 - **joelleeproductions@gmail.com** — Drive, Docs, Sheets, Gmail, Calendar. Also owns the Cloud project `cosmic-keep-511806-e0`. This is the token everything currently uses.
-- **joelvizard@gmail.com** — owns the **Yugi Jo YouTube channel**. Needs its own second token for YouTube Analytics. (Same username as the Windows PC account.)
+- **joelvizard@gmail.com** — owns the **Yugi Jo YouTube channel**. Has its own second token, **connected 13 Nov 2026**. (Same username as the Windows PC account.)
 - Because they're split, the YouTube scopes stay off the main token. The second auth only needs YouTube scopes, so Drive/Docs don't get scope creep.
 - Design note: pull YouTube data with the joelvizard token, write the results Sheet with the joelleeproductions Drive token, so the analytics output lands in the Drive already in use.
 
 ### Token on disk
 - `~/.hermes/google_token.json` — the joelleeproductions token, auto-refreshing.
-- Scopes on it: Gmail, Calendar, Drive, Contacts, Sheets, Docs. YouTube scopes are deliberately absent; those belong on the separate joelvizard token.
+- Scopes on it: Gmail, Calendar, Drive, Contacts, Sheets, Docs. YouTube scopes are deliberately absent; those live on the joelvizard token.
+- `~/.hermes/google_token_youtube.json` — the joelvizard token, auto-refreshing. Scopes: `youtube.readonly`, `yt-analytics.readonly`, `youtube.upload`, `youtube.force-ssl`.
+- Verified against the live API: channel **Yugi Jo** `UC3lTROT3W1SPPX3lhRAStDg`, and channel analytics respond. `channels.list?mine=true` returns exactly one channel, so no brand-account ambiguity.
 - Never use the Hermes connector picker for Google Workspace — go straight to the script.
+
+### Making a second token (the working recipe)
+`setup.py` gained two flags for this, because it originally hardcoded one token path and the workspace scope list:
+- `--token-path PATH` — read/write the token somewhere other than the workspace default. Also relocates the in-flight OAuth session file (`google_oauth_pending_<stem>.json`), so starting a YouTube auth can't clobber a pending workspace auth.
+- `--scopes default|youtube|youtube-manage` — `youtube` = readonly + analytics; `youtube-manage` adds `youtube.upload` and `youtube.force-ssl`.
+
+So the full YouTube auth is:
+`setup.py --auth-url --scopes youtube-manage --token-path ~/.hermes/google_token_youtube.json`
+then the same with `--auth-code '<pasted>'`. Sign in as **joelvizard@gmail.com**.
 
 ### Console config
 - Client `422217702558-scbcjcqfhtoblic9bg05comf7n5pnar4`, project `cosmic-keep-511806-e0`
@@ -38,6 +49,10 @@ Key facts about my computing setup, hosts, and remote access.
 - **Publishing status must be In production** — Testing mode kills refresh tokens after 7 days, which is what caused the recurring weekly failures. Verify the status rather than assuming.
 - **2-step verification is now required for Cloud Console access** (enforced from 31 Oct 2026). Enable MFA on the Google account or the console is unreachable.
 - App is production but **unverified**, so the consent screen shows an "unverified app" warning — tap Advanced → Go to app.
+- YouTube Data v3 + YouTube Analytics API are now **enabled** (done 13 Nov 2026). They were off, which is what blocked the first live call.
+- **Trap: a scope error masks a disabled API.** Google checks scopes before API enablement, so calling YouTube with a token that lacks YouTube scopes returns "insufficient authentication scopes" and tells you nothing about whether the API is on. Only once the scopes were granted did the real error appear ("has not been used in project … or it is disabled"). Never conclude an API is enabled from a scope error.
+- **Unverified app + uploads:** videos pushed through this (unaudited) project get locked to **private** on YouTube until the project passes Google's audit. Reading stats and managing existing content works regardless.
+- **Trap: a redirect URL pasted without its scheme.** `localhost:1/?state=…&code=…` does not start with `http`, so the script used to treat the whole blob as the auth code and Google answered `invalid_grant: Malformed auth code`. Fixed in the script (it now rewrites a scheme-less redirect to `http://…`), but if it ever recurs, pass the bare `4/0A…` code instead.
 
 ### The recovery route (check first, always)
 1. `setup.py --check` — **run this before any diagnosis or guesswork.** It settles the question in two seconds.
@@ -48,7 +63,7 @@ Key facts about my computing setup, hosts, and remote access.
 Full procedure, traps and prevention: skill **`google-auth-recovery`**.
 
 ### Prevention
-- Daily cron `google-token-healthcheck` runs `setup.py --check` and stays silent when healthy. It alerts on Telegram with the recovery route only when the token breaks — so failures are known before a task needs Google, not during one.
+- Daily cron `google-token-healthcheck` runs `setup.py --check` **on both tokens** and stays silent when healthy. It alerts on Telegram with the recovery route only when a token breaks — so failures are known before a task needs Google, not during one. A missing YouTube token counts as broken (silence would hide a half-configured box).
 - **Never re-auth "just in case"** — each re-auth issues a new refresh token for the same client/account/scopes, and exceeding ~50 invalidates the oldest.
 
 ## Hermes Rescue (backup & restore)
