@@ -44,6 +44,16 @@ Installs Hermes if missing, moves any existing `~/.hermes` aside to
 `~/hermes-home-before-restore-*.tar.gz`, copies everything back, then asks for the
 passphrase to unlock the credentials. Finish with `hermes doctor`.
 
+**On Windows this only works inside WSL2.** The scripts need bash plus `rsync` and
+`gpg`; Git for Windows ships neither, so Git Bash can't run them, and `restore.sh`
+calls the POSIX installer anyway. Route: `wsl --install` → reboot → in Ubuntu
+`sudo apt install -y git rsync gnupg` → then the same steps. For a **native**
+Windows Hermes (installed via `install.ps1` with `-HermesHome F:\hermes\data`),
+run the restore from WSL with `HERMES_HOME=/mnt/f/hermes/data` so the identity
+lands where the Windows install reads it. WSL keeps its disk on `C:` by default —
+`wsl --manage <Distro> --move <path>` relocates it. Both routes are written out in
+the Drive doc.
+
 A brand-new Hermes can also do it itself if told to clone the repo and run
 `bootstrap.sh`. The repo is private, so the clone needs a GitHub login with read
 access — the gh CLI login works, or any token with `repo` scope.
