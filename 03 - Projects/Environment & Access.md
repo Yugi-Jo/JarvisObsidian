@@ -10,12 +10,28 @@ Key facts about my computing setup, hosts, and remote access.
 ### Keeping the instance (Oracle idle reclamation)
 - Oracle's published rule: an Always Free instance **may be reclaimed** when, over a rolling 7-day window, **all three** are under 20% — CPU (95th percentile), network, and memory (**A1/Arm shapes only**, which is what this is). It is an `AND`, so holding one dimension above the line is enough.
 - The `gomon` agent plugin here reports `CpuUtilization` and `MemoryUtilization` on a **10s sample**, so both dimensions are genuinely measured. Network is out of reach — traffic is about 1 GB/day on a multi-Gbps link.
-- **The guard:** system service `oracle-keepalive` (`~/.hermes/scripts/oracle_keepalive.py`, unit copied to `~/.hermes/scripts/oracle-keepalive.service` so the rescue backup carries it). Holds memory at a **45% target** by allocating only the deficit above organic use, and burns **15s of CPU per 60s** at `nice 19` as a second, independent defeater. `Restart=always`, starts at boot.
-- Measured after the fix: memory steady **45.8–46%**, CPU **95th percentile 52%** (mean 23%), so it clears on either dimension alone. Survives `kill -9`.
-- **The trap that cost a rewrite:** the guard's own block shows up as "used", so the first version concluded less was needed, released, and yo-yoed between ~33% and ~46% every cycle. It must subtract what it is holding and measure *organic* usage.
+- **The guard:** system service `oracle-keepalive` (`~/.hermes/scripts/oracle_keepalive.py`, unit copied to `~/.hermes/scripts/oracle-keepalive.service` so the rescue backup carries it). Holds memory at a **45% target** by allocating only the deficit above organic use. `Restart=always`, starts at boot.
+- Measured: memory steady **43.7–46%** (line is 20%) and the guard's own CPU cost about **0.4%**. Survives `kill -9`.
+- **The CPU burn was removed on 14 Nov 2026** (`KEEPALIVE_CPU_BURN=0`). It was a second defeater, but it was redundant — memory alone clears the line, and Oracle's `gomon` plugin reports `MemoryUtilization` on a 10s sample, so the memory dimension is genuinely measured. Synthetic load is a **documented AUP grey area and an AUP breach is a termination trigger**, i.e. the burn added risk of the worst outcome to cover a dimension already covered. Passive memory holding is not "load" in the same way.
+- **Two traps that each cost a rewrite.** (1) The guard's own block shows up as "used", so the first version concluded less was needed, released, and yo-yoed between ~33% and ~46% — it must subtract what it holds and size against *organic* usage. (2) Page-cache churn then nudged the size every cycle, so it re-faulted 1.7 GB a minute; it now needs a **512 MB deadband** before resizing, and resizes in place instead of copying.
 - **Watchdog:** cron `oracle-keepalive-check`, daily 9am, silent unless the service is down or memory falls under 25%.
 - Reinstall after a rebuild: copy the unit back to `/etc/systemd/system/`, then `systemctl daemon-reload && systemctl enable --now oracle-keepalive`.
-- **Be honest about what this is:** it deliberately holds a metric above Oracle's threshold rather than making the box busy — gaming the intent of their rule, not satisfying it. Nothing in their docs forbids it, and they can change the thresholds at any time. It is **not** a guarantee, and upgrading to Pay As You Go is *not* the fix Reddit claims (that is about never being billed, not about exemption). The real insurance is the rescue backup.
+- **Be honest about what this is:** it deliberately holds a metric above Oracle's threshold rather than making the box busy — gaming the intent of their rule, not satisfying it. Nothing in their docs forbids it, and they can change the thresholds at any time. It is **not** a guarantee. The real insurance is the off-vendor copy below.
+
+### Off-Oracle copy (added 14 Nov 2026)
+- **Why:** every copy Oracle can make for you — boot volume backups, block volumes, snapshots — lives in the same tenancy and dies with it. The GitHub rescue repo is a genuine second copy but shares one vendor identity with the code, so losing that one account would lose both.
+- **What:** cron `offsite-backup-to-drive`, daily 5am, runs `~/.hermes/scripts/offsite_backup.sh` (canonical copies in skill `oracle-free-tier-guard`). Builds one **encrypted** bundle — `identity/`, the credentials blob, `rescue-key.enc` (so it is self-sufficient given the password), `RESTORE.md`, `MANIFEST.json`, and **`state.db` plus its wal/shm files** (chat history, which the GitHub copy deliberately omits) — and uploads it to Drive folder **"Hermes Offsite Backup"** in Joel's own Google account. Rotates to the newest 5. Around 35 MB each, so ~175 MB steady.
+- **Verified:** the bundle decrypts, contains 1,334 files and all the credential pieces, and the upload is confirmed by searching Drive rather than trusting the upload's exit status. **Any output from this job, or a non-zero exit, is a real problem** — it is silent when healthy.
+- **Second vendor, second account.** That is the point: no single account loss can take the primary and every recovery path at once.
+
+### Still open (all need Joel, not the agent)
+- **Boot volume backup in the Oracle console** — free (5 backups, 200 GB pool, home region only). No Oracle API keys exist on the box, so this cannot be automated from here. Protects against corruption, *not* against account loss.
+- **An off-box heartbeat.** Every watchdog currently runs *on* the server, so if the box dies the alerts die with it. Needs a free uptime-monitor account.
+- **The PAYG upgrade decision** — reported to stop idle reclamation, but undocumented; see the knowledge note.
+- **A standby host** for a real failover, rather than only being able to rebuild.
+
+Full research, sources and the dated incident reports: [[Oracle Cloud Risks & Safeguards]].
+
 
 ## Windows PC
 - Slow Windows PC, home drive: `F:\`
