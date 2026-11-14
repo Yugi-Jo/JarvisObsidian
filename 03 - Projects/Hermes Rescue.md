@@ -10,6 +10,12 @@ agent outright.
 both Joel (assumes nothing installed) and for an agent asked to restore itself. Keep
 that file accurate; it is the thing that actually gets read when the server is gone.
 
+A copy of those instructions for Joel also sits in his Google Drive as
+**"How to Restore Your Full Hermes Backup"** (created 14 Nov 2026) — same steps,
+written for him rather than for an agent, and readable without shelling into
+anything. When `RESTORE.md` changes, update that doc too or it drifts into being
+worse than nothing.
+
 ## What the snapshot contains
 
 - `identity/` — `config.yaml`, `SOUL.md`, `profile.yaml`, `memories/`, all 95

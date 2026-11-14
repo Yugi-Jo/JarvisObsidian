@@ -65,8 +65,10 @@ Caveat: those flags live in the bundled skill script (`skills/productivity/googl
 Full procedure, traps and prevention: skill **`google-auth-recovery`**.
 
 ### Prevention
-- Daily cron `google-token-healthcheck` runs `setup.py --check` **on both tokens** and stays silent when healthy. It alerts on Telegram with the recovery route only when a token breaks — so failures are known before a task needs Google, not during one. A missing YouTube token counts as broken (silence would hide a half-configured box).
-- **Never re-auth "just in case"** — each re-auth issues a new refresh token for the same client/account/scopes, and exceeding ~50 invalidates the oldest.
+- Daily cron `google-token-healthcheck` runs `setup.py --check` **on both tokens**, then tests the **CLI credential copy** by refreshing it directly, and stays silent when healthy. It alerts on Telegram with the recovery route only when a token breaks — so failures are known before a task needs Google, not during one. A missing YouTube token counts as broken (silence would hide a half-configured box).
+- The CLI copy (`~/.config/gws/credentials.json`) needs its **own** check: it shares the OAuth client with the workspace token but carries a separate refresh token, so it dies independently (happened 14 Nov 2026 — a Doc-writing task failed with `invalid_grant` while `setup.py --check` reported the workspace token healthy). Fix is a one-liner, no browser: `cp ~/.hermes/google_token.json ~/.config/gws/credentials.json`. Don't test it via `gws auth status` or a `gws` call — both serve a cached access token and report healthy while the refresh token is dead.
+- **Never re-auth "just in case"** — each re-auth issues a new refresh token for the same client/account/scopes, and exceeding ~50 invalidates the oldest (the likely cause of the 14 Nov CLI breakage).
+
 
 ## Hermes Rescue (backup & restore)
 - Full agent snapshot in the **private** repo `Yugi-Jo/hermes-rescue`: config, skills, memory, cron jobs, plugins, scripts, small DBs, plus the credentials in an encrypted blob. Restores onto any new machine with one line.
