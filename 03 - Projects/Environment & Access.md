@@ -7,6 +7,16 @@ Key facts about my computing setup, hosts, and remote access.
 - Profiles: active is `default` at `/home/ubuntu/.hermes/`
 - Desktop app connects via Hermes serve backend + gateway
 
+### Keeping the instance (Oracle idle reclamation)
+- Oracle's published rule: an Always Free instance **may be reclaimed** when, over a rolling 7-day window, **all three** are under 20% — CPU (95th percentile), network, and memory (**A1/Arm shapes only**, which is what this is). It is an `AND`, so holding one dimension above the line is enough.
+- The `gomon` agent plugin here reports `CpuUtilization` and `MemoryUtilization` on a **10s sample**, so both dimensions are genuinely measured. Network is out of reach — traffic is about 1 GB/day on a multi-Gbps link.
+- **The guard:** system service `oracle-keepalive` (`~/.hermes/scripts/oracle_keepalive.py`, unit copied to `~/.hermes/scripts/oracle-keepalive.service` so the rescue backup carries it). Holds memory at a **45% target** by allocating only the deficit above organic use, and burns **15s of CPU per 60s** at `nice 19` as a second, independent defeater. `Restart=always`, starts at boot.
+- Measured after the fix: memory steady **45.8–46%**, CPU **95th percentile 52%** (mean 23%), so it clears on either dimension alone. Survives `kill -9`.
+- **The trap that cost a rewrite:** the guard's own block shows up as "used", so the first version concluded less was needed, released, and yo-yoed between ~33% and ~46% every cycle. It must subtract what it is holding and measure *organic* usage.
+- **Watchdog:** cron `oracle-keepalive-check`, daily 9am, silent unless the service is down or memory falls under 25%.
+- Reinstall after a rebuild: copy the unit back to `/etc/systemd/system/`, then `systemctl daemon-reload && systemctl enable --now oracle-keepalive`.
+- **Be honest about what this is:** it deliberately holds a metric above Oracle's threshold rather than making the box busy — gaming the intent of their rule, not satisfying it. Nothing in their docs forbids it, and they can change the thresholds at any time. It is **not** a guarantee, and upgrading to Pay As You Go is *not* the fix Reddit claims (that is about never being billed, not about exemption). The real insurance is the rescue backup.
+
 ## Windows PC
 - Slow Windows PC, home drive: `F:\`
 - Drive Inbox for deliverables, Outbox for uploads
