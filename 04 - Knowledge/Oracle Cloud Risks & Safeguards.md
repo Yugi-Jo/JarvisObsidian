@@ -96,9 +96,15 @@ documented. Do not present it as a guarantee.
 5. **A standby host** — the second Always Free shape is only usable by shrinking this
    one, so a genuinely independent standby means another provider. GCP's e2-micro is the
    only other no-expiry always-free VM (weak: ~1 GB RAM, US regions).
-6. **An off-box heartbeat** — everything currently watching the server runs *on* the
-   server, so a dead box goes quiet rather than shouting. An external pinger (free tier
-   of any uptime service) is the missing piece; needs a third-party account.
+6. **An off-box heartbeat** — everything watching the server otherwise runs *on* the
+   server, so a dead box goes quiet rather than shouting. **Built 15 Nov 2026:** a
+   scheduled GitHub workflow in the rescue repo watches for the 6-hourly snapshot
+   commits going quiet and raises an issue assigned to Joel. Free, no new account,
+   outside Oracle, and it also catches a dead messaging gateway — see
+   [[Environment & Access#Off-box heartbeat (added 15 Nov 2026)]]. The originally
+   planned route (sign up to a free uptime monitor) was dropped: it would have meant
+   creating an account in Joel's name and accepting a provider's terms for him, which
+   the GitHub route avoids entirely.
 7. **The idle guard** — cheap and it works, but it is the *smallest* risk of the set,
    and synthetic load is a documented AUP grey area. The passive memory hold is the
    defensible half; the CPU burn was dropped for exactly this reason.

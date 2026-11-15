@@ -24,11 +24,26 @@ Key facts about my computing setup, hosts, and remote access.
 - **Verified:** the bundle decrypts, contains 1,334 files and all the credential pieces, and the upload is confirmed by searching Drive rather than trusting the upload's exit status. **Any output from this job, or a non-zero exit, is a real problem** — it is silent when healthy.
 - **Second vendor, second account.** That is the point: no single account loss can take the primary and every recovery path at once.
 
+### Off-box heartbeat (added 15 Nov 2026)
+- **The gap it closes:** every other watchdog runs *on* the server, so if the box dies the alarms die with it. A total loss was silent.
+- **How:** a scheduled GitHub workflow (`.github/workflows/heartbeat.yml` in the rescue repo) runs on GitHub's runners, every 6 hours, 15 minutes after the snapshot job is due. It is free, needs no new account, and lives outside Oracle entirely.
+- **What it watches:** the newest commit on `main` whose message starts with `rescue snapshot`. That is a proxy for "the server is alive and its scheduled jobs are running" — and because those jobs are driven by the messaging gateway, a dead gateway also stops the pushes, which would otherwise be completely silent.
+- On staleness it opens an issue **assigned to Joel** (so GitHub emails him) *and* fails the run so the run shows red. It comments on the existing open issue rather than opening a new one each time, and never closes itself.
+- **Verified for real, not just in theory:** forced a stale run on the actual runner — the run went red and issue #3 was created and assigned, then closed. A normal run passes in ~6-8s reading the true snapshot age.
+- Threshold is 9 hours: one missed 6-hourly cycle plus slack.
+
+**Three traps this hit, all fixed:**
+1. **The login used here couldn't push automation files at all** — the push was rejected until Joel granted the `workflow` scope through the one-time device code. Expect that whenever a workflow file is first added.
+2. **Issues were disabled on the repo**, so the alert had nowhere to land (HTTP 410 on issue creation). Found only because the alarm path was actually tested. Issues are now enabled.
+3. **Measuring "the newest commit" was wrong** — the agent's own commits would reset the clock and mask a stalled backup. It counts only `rescue snapshot` commits.
+
+Note: GitHub auto-disables scheduled workflows after 60 days of repository inactivity, which is not a risk here because the backup commits every 6 hours. Actions minutes on a private repo are a free 2,000/month; this job uses roughly 12.
+
 ### Still open (all need Joel, not the agent)
 - **Boot volume backup in the Oracle console** — free (5 backups, 200 GB pool, home region only). No Oracle API keys exist on the box, so this cannot be automated from here. Protects against corruption, *not* against account loss.
-- **An off-box heartbeat.** Every watchdog currently runs *on* the server, so if the box dies the alerts die with it. Needs a free uptime-monitor account.
 - **The PAYG upgrade decision** — reported to stop idle reclamation, but undocumented; see the knowledge note.
 - **A standby host** for a real failover, rather than only being able to rebuild.
+
 
 Full research, sources and the dated incident reports: [[Oracle Cloud Risks & Safeguards]].
 
