@@ -56,6 +56,14 @@ Full research, sources and the dated incident reports: [[Oracle Cloud Risks & Sa
 - **Computer Use:** Routes through Alan's Way plugin → real desktop (not VPS). Can list apps, take screenshots, drive via `computer_use` tool. Terminals read via capture mode='ax'.
 - Blender MCP: wired through Hermes VPS → SSH tunnel → Windows Blender via `uvx mcp-for-blender stdio` [[Blender MCP Setup]]
 
+### Agent-controlled browser (added 15 Nov 2026)
+- **Why it exists:** the desktop driver refuses the **frontmost** window for both input and capture, so any window Joel is using is off limits — no escalation overrides it. Hit repeatedly trying to read Google Maps. The fix is to route around it rather than fight it.
+- **Setup:** a separate Chrome profile at `F:\hermes-browser` (never his own), launched with a DevTools port on `127.0.0.1:9222`, driven over CDP from the VPS. Window focus is irrelevant, so it works while he's using the PC.
+- **Held up by:** systemd service `hermes-pc-browser-tunnel` on the VPS (tunnel to that port) and Windows scheduled task `HermesAgentBrowser` (starts the browser at logon). Verified: service `active` with **0 restarts**, and a real typing test — typed into a search box, pressed Enter, search ran.
+- **Three traps that each cost real time:** an SSH-launched Chrome **dies when the session ends**, so it must be created via WMI; a systemd ssh tunnel **exits instantly with status 0** because the remote session gets EOF with no terminal, fixed with `sleep infinity |` holding stdin open; and `pkill -f <pattern>` **kills the shell running it** if the pattern appears in its own command line.
+- **Still needs one thing from Joel:** a one-time Google **sign-in** in that browser. Consent walls can be cleared by the agent, but sign-in never can — his password is not something the agent touches. Until then Google serves the signed-out "limited view", which omits Maps busyness data **even for big chains**.
+- Full recipe and pitfalls: skill **`pc-browser-control`**.
+
 ## Shell Rules
 - PowerShell only
 - Single-line, semicolon-joined commands
