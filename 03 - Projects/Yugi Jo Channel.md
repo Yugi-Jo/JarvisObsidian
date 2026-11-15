@@ -561,8 +561,8 @@ Legend of the Dragon Retrospective, the Ben 10 videos, the Yu-Gi-Oh × Kamen Rid
 
 ### Tooling
 
-- **vidIQ** — connected (free tier, ~150 credits/month)
-- **YouTube Studio** — pending: needs YouTube Data API v3 + YouTube Analytics API enabled in Google Cloud Console, plus OAuth re-auth
+- **vidIQ** — connected as `@yugi_jo`; **170 credits left** on the Free plan (150/month renewable, resets 11 Dec 2026). Research is cheap but not unlimited, so spend it on competitor scans rather than idle browsing.
+- **YouTube Data API v3 + YouTube Analytics API** — **both live** (verified 15 Nov 2026). The Data API returns the channel (1,560 subs / 50 videos / 112,992 views) and uploads; the Analytics API returns real per-day views, minutes watched, average view duration, average view percentage and subscribers gained. Scopes ride on the one `google_token_youtube.json`. No more guessing retention from public view counts.
 - **Storage** — VPS Obsidian vault (primary) + Google Drive Inbox (reports)
 - **Wanted** — ability to build spreadsheets from YouTube Studio data
 
