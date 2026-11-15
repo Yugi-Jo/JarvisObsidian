@@ -30,6 +30,7 @@ Key facts about my computing setup, hosts, and remote access.
 - **What it watches:** the newest commit on `main` whose message starts with `rescue snapshot`. That is a proxy for "the server is alive and its scheduled jobs are running" — and because those jobs are driven by the messaging gateway, a dead gateway also stops the pushes, which would otherwise be completely silent.
 - On staleness it opens an issue **assigned to Joel** (so GitHub emails him) *and* fails the run so the run shows red. It comments on the existing open issue rather than opening a new one each time, and never closes itself.
 - **Verified for real, not just in theory:** forced a stale run on the actual runner — the run went red and issue #3 was created and assigned, then closed. A normal run passes in ~6-8s reading the true snapshot age.
+- **Email route confirmed** (Joel, 15 Nov 2026): GitHub notification emails do reach his inbox, so a real alarm will be seen rather than just sitting in the repo. Worth knowing it could not be checked from the agent side — Gmail isn't enabled on his Google project, and reading the repo watch status needs a `notifications` scope we don't hold.
 - Threshold is 9 hours: one missed 6-hourly cycle plus slack.
 
 **Three traps this hit, all fixed:**
