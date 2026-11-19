@@ -49,6 +49,13 @@ Note: GitHub auto-disables scheduled workflows after 60 days of repository inact
 Full research, sources and the dated incident reports: [[Oracle Cloud Risks & Safeguards]].
 
 
+### Ultron profile (added 19 Nov 2026)
+- A second profile, `ultron`, is an uncensored alter-ego: same cloned toolkit, different brain and voice.
+- Model: abliteration.ai's `abliterated-model-large-flash`, the abliterated twin of DeepSeek V4.1-Flash. Provider `custom`, base `https://api.abliteration.ai/v1`, key `ABLIT_API_KEY` in `~/.hermes/profiles/ultron/.env`. Tool calling verified end to end, so it keeps web search and the shell and isn't frozen at training time.
+- Own `SOUL.md`: answers to its name, direct voice, no performed refusals. Launch with `ultron` or `hermes -p ultron`.
+- Floor it cannot remove: the provider blocks child sexual exploitation and self-harm. Abliteration also costs some coherence, so it reads slightly duller than the censored twin.
+- Wake word can live-switch to it: with `wake_word.enabled` set on both profiles (sherpa engine, "hey ultron"), the desktop app switches profile on the spoken phrase. Voice plus desktop only, not the messaging gateway.
+
 ## Windows PC
 - Slow Windows PC, home drive: `F:\`
 - Drive Inbox for deliverables, Outbox for uploads
