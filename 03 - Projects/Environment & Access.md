@@ -54,7 +54,7 @@ Full research, sources and the dated incident reports: [[Oracle Cloud Risks & Sa
 - Model: abliteration.ai's `abliterated-model-large-flash`, the abliterated twin of DeepSeek V4.1-Flash. Provider `custom`, base `https://api.abliteration.ai/v1`, key `ABLIT_API_KEY` in `~/.hermes/profiles/ultron/.env`. Tool calling verified end to end, so it keeps web search and the shell and isn't frozen at training time.
 - Own `SOUL.md`: answers to its name, direct voice, no performed refusals. Launch with `ultron` or `hermes -p ultron`.
 - Floor it cannot remove: the provider blocks child sexual exploitation and self-harm. Abliteration also costs some coherence, so it reads slightly duller than the censored twin.
-- Wake word can live-switch to it: with `wake_word.enabled` set on both profiles (sherpa engine, "hey ultron"), the desktop app switches profile on the spoken phrase. Voice plus desktop only, not the messaging gateway.
+- Wake word is **on** (19 Nov 2026): sherpa engine, `capture: client` (the PC mic streams to the backend), `hey ultron` switches to this profile and `hey jarvis` returns to default. Voice plus desktop app only, never the messaging gateway. Setup method and pitfalls: skill hermes-agent, `references/wake-word.md`.
 
 ## Windows PC
 - Slow Windows PC, home drive: `F:\`
