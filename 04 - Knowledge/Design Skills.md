@@ -23,6 +23,11 @@ design/
 scanner prunes the whole directory. The 220 skills therefore cost **zero prompt tokens** and
 appear nowhere in the skill index, while every file stays live and readable.
 
+**Category demotion is not a substitute.** Hermes' `compact_categories` mechanism (which would
+demote a category to a names-only line) fires only in `focus` mode and only for a hardcoded
+non-coding category list that does not include `design`. `.archive` is the only mechanism that
+actually removes them from the index.
+
 This took the design repertoire from 221 index entries (~6.5k tokens every turn) to **1 entry
 (~60 characters)**.
 
