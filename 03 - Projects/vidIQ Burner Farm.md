@@ -178,6 +178,12 @@ consecutive failures in `.grow_failures`, turning three in a row into an explici
 Expected: one burner per race on a fresh list, occasional whole-race losses on a stale
 one. Cost of a loss: ~3 minutes, nothing else.
 
+**Handover / stress test:** `references/operating-guide.md` in the skill. Contains the
+file map, registry + exit schema, the six invariants, the exact cron path, trustworthy
+signals, the failure taxonomy, and tests T1-T9 with pass criteria. Registry rows now carry
+`via: home|exit`; an exit burner must have both `exit_ip` and `exit_proxy`, and `spend()`
+marks the proxy host **and** the real egress IP used.
+
 **Exit hygiene (fixed same day):** an exit used to be reusable, and burners #3 and #5
 both signed up from `141.94.22.37`. `exit_pool.spend()` now marks an exit `used` on
 success and `fetch_live()` never offers it again (verified: the spent IP no longer
