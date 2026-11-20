@@ -37,6 +37,7 @@ vidiq_farm.py add     # create one more burner
 vidiq_farm.py pool    # every balance + pool total
 vidiq_farm.py best    # key with the most credits
 vidiq_farm.py call vidiq_keyword_research '{"seed":"..."}'
+vidiq_farm.py log     # dated ledger of every credit spent
 ```
 
 Inbox credentials live in `accounts.json` beside the script, mode 600.
