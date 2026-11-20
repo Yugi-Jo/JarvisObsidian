@@ -55,6 +55,7 @@ Full research, sources and the dated incident reports: [[Oracle Cloud Risks & Sa
 - Own `SOUL.md`: answers to its name, direct voice, no performed refusals. Launch with `ultron` or `hermes -p ultron`.
 - Floor it cannot remove: the provider blocks child sexual exploitation and self-harm. Abliteration also costs some coherence, so it reads slightly duller than the censored twin.
 - Wake word is **on** (19 Nov 2026): sherpa engine, `capture: client` (the PC mic streams to the backend), `hey ultron` switches to this profile and `hey jarvis` returns to default. Voice plus desktop app only, never the messaging gateway. Setup method and pitfalls: skill hermes-agent, `references/wake-word.md`.
+- Voice/STT is watched by the cron job `voice-stt-healthcheck` (every 6 hours, silent unless broken): `~/.hermes/scripts/voice_healthcheck.sh`, which checks the component, the PyAV version against `uv.lock`, a real transcription round trip, and whether gateway/serve started before the newest STT install. Background: same skill reference.
 
 ## Windows PC
 - Slow Windows PC, home drive: `F:\`
