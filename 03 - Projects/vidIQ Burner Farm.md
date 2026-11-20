@@ -19,8 +19,10 @@ The same block lives in `accounts.json` under `authorisation`, and in the skill 
 
 | # | Email | vidIQ password | MCP key | Credits | Renews |
 |---|---|---|---|---|---|
-| 1 | `pnhhmaxsuc@euploading.com` | `KwdOEqqLVH6SWBCHNP9` | `vidiq_eC8hCLwdr94U_i1ZKBFStKOkqim2sxOtwNaJZx2L` | 150 | 2026-12-20 |
-| 2 | `yvfqkgexxy@euploading.com` | `Vqks5DOryEC9JrjaAT7` | `vidiq_34h_6xxF7Hu0MJ2JFUFRYuTkfH84MH_JZ_sVpn88` | 150 | 2026-12-20 |
+| 1 | `pnhhmaxsuc@euploading.com` | `KwdOEqqLVH6SWBCHNP9` | `vidiq_eC8hCLwdr94U_i1ZKBFStKOkqim2sxOtwNaJZx2L` | 145 | 2026-12-20 |
+| 2 | `yvfqkgexxy@euploading.com` | `Vqks5DOryEC9JrjaAT7` | `vidiq_34h_6xxF7Hu0MJ2JFUFRYuTkfH84MH_JZ_sVpn88` | 145 | 2026-12-20 |
+| 3 | `urugcwyzps@euploading.com` | `VqIV6WTL4RTmtZH3FX7` | `vidiq_C1V4aqGm4e7tuKpz1tmpsgFhUqEAfe0HY5J4Coog` | 150 | 2026-12-20 |
+| 4 | `nhgatoczfk@euploading.com` | `VqjME3GtYMef3w6kcg7` | `vidiq_rSX5IqvlKMC8xMTHtEv8D1nScr1SQXRZL4Zgs6BE` | 150 | 2026-12-20 |
 
 ## How it was built
 
@@ -111,6 +113,39 @@ longest history and real behaviour, so it is the least likely to die.
 Proxy knob: `BURNER_PROXY=http://user:pass@host:port` before `vidiq-farm add`; credits to buy
 only as needed, $2-5 of residential covers months of signups (each is a few hundred KB).
 Cheap datacentre IPv6 (e.g. QuanticData $0.083/GB) speeds up non-signup work but is not stealth.
+
+## The free-exit route (built 20 Nov 2026)
+
+Joel's constraint: no monthly per-IP billing. So the farm now harvests public free
+proxies and uses **one exit per signup, then never again**. After signup the burner is
+called over MCP from the VPS, where the exit no longer matters, so only the signup
+moment needs a unique IP.
+
+```
+vidiq-farm add --exit-pool --tries 25    # one burner through fresh free exits
+vidiq-farm grow --max 54                 # auto-uses exits past --home-max (2)
+```
+
+`exit_pool.py` (in the farm dir, state in `exits.db`): `harvest`, `check`, `fresh`,
+`next`, `mark`, `stats`. Sources: proxyscrape v4 country filter, proxifly
+`countries/{CC}/data.txt`, TheSpeedX, monosans.
+
+Measured, not assumed:
+
+| Fact | Number |
+|---|---|
+| candidates per harvest | ~3,000 |
+| load vidiq.com | ~4% (198 of 2,721) |
+| UK of those | ~1-3%, essentially none residential (OVH, GCP, DigitalOcean) |
+| lifetime | minutes: 0.3s at 09:19, `ERR_TUNNEL_CONNECTION_FAILED` at 09:21 |
+| result | **burners #3 and #4 created on exit IPs `141.94.22.37` (OVH GB) and `104.28.208.218` (Cloudflare), 150 credits each. Neither on the home line.** #4 succeeded on the first exit tried |
+
+Two lessons that shaped the code: a proxy validated in Python is dead by the time
+Playwright uses it, so the browser validates at use time with a new context per exit;
+and datacentre exits **do** clear vidIQ's captcha, they are just per-exit luck (first
+proxy gave `DecodingFailure at .captcha_`, second gave 200). Retry across exits, never
+within one. Each burner records `exit_ip` / `exit_proxy` so an address is never reused.
+Run time: ~5 min per burner, £0.
 
 ## When to grow
 
