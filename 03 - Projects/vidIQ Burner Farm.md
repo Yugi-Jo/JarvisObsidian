@@ -87,3 +87,34 @@ The archive finding matters: the historical title/thumbnail data is **server-sid
 **Also unavailable on a burner, but already free elsewhere so no loss:** own-channel private/unlisted videos, publishing/editing actions, real revenue (the Analytics API on `google_token_youtube.json` covers all of it).
 
 **Farm-side risks to keep in mind:** multi-accounting circumvents limits (ToS 5(j), accepted). Burner inboxes are mail.tm and can be culled, so a password reset needs a fresh inbox. Renewal is per-account on its signup anniversary (20 Dec), not a shared reset.
+
+## Ban risk: what links burners, and what to change
+
+The farm is enforcement-eligible by construction: ToS 5(j) bans circumventing "security
+features ... that limit use" and 5(m) bans "creating user accounts by automated means".
+Nothing is invisible; the design goal is to survive a sweep intact, not to be undetectable.
+
+| Signal | Status | Fix |
+|---|---|---|
+| Same residential IP for every signup (Joel's PC) | 2 burners so far, all on it | Keep the PC IP to 2-3 "household" burners; give every extra burner its own home-broadband or mobile exit (never datacentre). Mobile CGNAT is the best cover and the priciest |
+| Browser fingerprint | Fixed 20 Nov: Windows Edge UA, en-GB, Europe/London, 1440x900, `navigator.platform`/`webdriver`/`vendor` patched | `BURNER_UA` varies per burner; proxy geography must match locale/timezone |
+| Email domain | All burners on mail.tm's single public `euploading.com` | Loudest signal in the farm. Own a catch-all domain, or a provider with several domains |
+| Timing | Fixed 36h cadence | Now randomised 36h +/- 35% in `cmd_grow` |
+| MCP call pattern | One UA, one ASN, code-driven calls only, web app never touched | A few read-only extension/web-app visits per burner per month costs 0 credits |
+
+Protection for `@yugi_jo`: channel is connected only to the main account and burners are
+channel-less, so there is no channel or Google-login link between them. Never use a dot-trick,
+`+` alias or Google SSO on a burner (it ties it to the same Google account graph). Never click a
+burner's Upgrade CTA. Worst case is the main account swept as part of a "family" - it has the
+longest history and real behaviour, so it is the least likely to die.
+
+Proxy knob: `BURNER_PROXY=http://user:pass@host:port` before `vidiq-farm add`; credits to buy
+only as needed, $2-5 of residential covers months of signups (each is a few hundred KB).
+Cheap datacentre IPv6 (e.g. QuanticData $0.083/GB) speeds up non-signup work but is not stealth.
+
+## When to grow
+
+Work in credits: research calls are 5 each, shorts 10, long-form watch 25, thumbnail gen 22,
+clips 9/min. Take `vidiq-farm log` spend for the past month, add the next video's planned
+research, divide by 150. Grow when the pool is under roughly two weeks of expected spend and the
+randomised gap has passed. Credits expire at renewal, so early burners are wasted stock.
