@@ -146,14 +146,27 @@ clear vidIQ's captcha, they are just per-exit luck (first proxy gave
 `DecodingFailure at .captcha_`, second gave 200). Each burner records `exit_ip` /
 `exit_proxy` so an address is never reused.
 
-**Solved 20 Nov (race_signup.py):** walking exits one at a time costs ~45s each and the
-harvest rots while you walk — a 50-exit serial walk burned 13 minutes and lost. Racing 6
-Chromiums in parallel, each on its own exit, produced **burner #5 in 120 seconds**. Runs
-on the VPS itself (headful under `xvfb-run`), so the PC CDP tunnel is no longer in the
-signup path at all. One inbox serves the whole race; the losers get `already_exists`.
-A provisional record is written the instant a signup returns 200, so no crash can orphan
-an account, and a lost race removes its row again. `grow` shells out to the race past
-`--home-max 2`.
+**Solved 20 Nov:** the farm was failing every race for a reason nothing in the logs pointed
+at. Burners #3 and #4 had been made through *Joel's Chrome over CDP* with an exit proxy;
+the later races launched a Playwright Linux Chromium on the VPS and lost every time. A
+Playwright build does not receive a reCAPTCHA token, so the form posted with an empty one
+(`400 ... DecodingFailure at .captcha_`) or its JS never hydrated (`NO POST`). Racing on
+the PC's real Windows Chrome won **burner #6 in 23 seconds**.
+
+Three signal errors found by measurement:
+
+- `window.grecaptcha` is **absent even on the working home line** — the old 20s wait for
+  it was a no-op. The real gate is the submit button, which stays `disabled: true` until
+  the token lands.
+- "Live vs vidiq.com" was the wrong test. Free exits serve the page happily while
+  `accounts.google.com` times out and `googletagmanager` resets; the page then loads
+  without working JS. The gate now fetches a real `/_next/static/*.js` chunk plus
+  `recaptcha/api.js` through the exit.
+- Exit counts were inflated: one box appears on many ports (`147.161.162.49` five times
+  in one race). Now deduped by host.
+
+Also: never `b.close()` a CDP-connection — it can take Joel's Chrome down and kill every
+worker. `teardown()` closes the context instead.
 
 Expected: one burner per race on a fresh list, occasional whole-race losses on a stale
 one. Cost of a loss: ~3 minutes, nothing else.
