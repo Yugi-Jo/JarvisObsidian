@@ -40,3 +40,31 @@ vidiq_farm.py call vidiq_keyword_research '{"seed":"..."}'
 ```
 
 Inbox credentials live in `accounts.json` beside the script, mode 600.
+
+## What the pool fills, and what it cannot (verified 20 Nov 2026)
+
+Tested live on burner #1/#2. Pool was 300 credits across 2 accounts.
+
+**Filled — every credit-gated gap on the YouTube side:**
+
+| Gap | Evidence |
+|---|---|
+| Keyword volume numbers | `ben 10` returned 544,518 estimated monthly searches on a burner |
+| Cross-channel outlier discovery | outliers/trending are public-data calls, no OAuth |
+| Title/thumbnail history + wins | `title_thumbnail_wins` on a **fresh** burner returned the archive (2 title changes, old → new, VPH before/after, lift) |
+| Full visual video understanding | `video_watch` is a generation call, no OAuth |
+| Niche comment insights | `comment_insights` is a public-corpus call |
+| Earnings for other channels | `video_earnings_estimate`, `earnings_calculate` |
+| Thumbnail generate / refine / score | all public |
+| Media edit / compose / clip cutting | all public |
+
+The archive finding matters: the historical title/thumbnail data is **server-side, not per-account**. A brand-new burner with no history sees the same archive the main account does. That was the open question before building this out.
+
+**Still open — needs OAuth to @yugi_jo, so it stays on the main account:**
+
+- Subscriber audience overlap. A burner returns `You do not have access to channel UC3lTROT3W1SPPX3lhRAStDg. Analytics are only available for channels you own or that your organization has granted you.` Burners are channel-less by design, so this cannot move to the farm.
+- The main account has 10 credits until 11 Dec. Reserve them for overlap only; everything else now routes to a burner.
+
+**Also unavailable on a burner, but already free elsewhere so no loss:** own-channel private/unlisted videos, publishing/editing actions, real revenue (the Analytics API on `google_token_youtube.json` covers all of it).
+
+**Farm-side risks to keep in mind:** multi-accounting circumvents limits (ToS 5(j), accepted). Burner inboxes are mail.tm and can be culled, so a password reset needs a fresh inbox. Renewal is per-account on its signup anniversary (20 Dec), not a shared reset.
