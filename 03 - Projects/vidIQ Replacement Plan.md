@@ -7,6 +7,25 @@ Status 20 Nov 2026: Free tier. 15 credits left of 150, renewable pool already sp
 2026-12-11. Free tier is 150 credits/month, so a channel analysis plus a few transcripts eats a
 month. Replacing it is worth doing.
 
+## BUILT (20 Nov 2026)
+
+The free replacements are live as a single CLI, `nova-free`, that Nova calls instead of vidIQ.
+
+- Source of truth: skill `nova-youtube-agent`, `scripts/nova_free.py`
+- Runtime venv: `~/.hermes/tools/nova-free/venv` (rebuild with `scripts/bootstrap.sh`)
+- Wrapper on PATH: `~/.local/bin/nova-free`
+- Docs + scorecard: skill `nova-youtube-agent`, `references/free-vidiq-replacement.md`
+
+Commands: `doctor`, `channel`, `videos`, `video`, `outliers`, `trending`, `keywords`, `transcript`,
+`chapters`, `comments`, `search`, `analytics`, `earnings`, `similar`. Add `--json` anywhere.
+
+All commands verified live against Yugi Jo on 20 Nov 2026. Two gotchas baked in: the wrapper
+must `unset PYTHONPATH` (the agent shell injects python3.14 site-packages into the tool's 3.12
+venv and breaks numpy/pandas/pytrends), and `analytics --report revenue` only works on a
+monetized channel the token owns, so it falls back with a clear message otherwise.
+
+Cost of the head-to-head benchmark: 5 vidIQ credits (15 to 10). That was the last vidIQ spend.
+
 ## The free stack that already works here (verified live 20 Nov 2026)
 
 - **YouTube Data API v3** on `~/.hermes/google_token_youtube.json` (scopes: youtube.readonly,
@@ -185,17 +204,50 @@ month. Replacing it is worth doing.
 
 Everything else in the 70 tools has a free path.
 
-## Suggested build order
+## Free vs vidIQ scorecard (10 = best)
 
-1. **`ytdata` helper script** (Python): wraps Data API + Analytics API for channel stats,
-   video stats, uploads, comments, transcripts. Replaces ~20 of the 5-credit tools. This is
-   the highest-value single piece.
-2. **Install `yt-dlp` and `faster-whisper`** for public transcripts and no-caption videos.
-3. **Keyword tool**: autocomplete + Trends. Replaces keyword_research.
-4. **Outlier/trending script**: computes breakout ratio and VPH from the Data API.
-5. **Packaging loop**: LLM titles + ComfyUI thumbnails + vision_ critique.
-6. **Media tools**: ffmpeg wrapper for compose/edit; Piper for TTS.
-7. **Snapshot cron** for title/thumbnail change tracking (starts the archive).
+| Capability | nova-free | vidIQ | Winner |
+|---|---|---|---|
+| Own-channel analytics | 9 | 9 | tie (free wins on cost) |
+| Public channel/video stats | 9 | 9 | tie (free wins on cost) |
+| Keyword volume numbers | 4 | 9 | vidIQ |
+| Keyword relevance/language | 8 | 6 | free |
+| Transcripts | 9 | 9 | tie (free wins on cost) |
+| Full visual video understanding | 5 | 9 | vidIQ |
+| Own-channel outliers | 8 | 8 | tie |
+| Cross-channel outlier discovery | 5 | 9 | vidIQ |
+| Comments (known video) | 9 | 9 | tie |
+| Niche comment insights | 4 | 8 | vidIQ |
+| Subscriber overlap | 1 | 9 | vidIQ (no free path) |
+| Title/thumbnail history + wins | 2 | 9 | vidIQ |
+| Thumbnail generate/refine/score | 5 | 8 | vidIQ out of the box, free on cost |
+| Earnings (own channel) | 9 | 7 | free (real revenue if monetized) |
+| Earnings (other channels) | 6 | 8 | vidIQ |
+| Media edit / compose / clips | 6 | 8 | vidIQ out of the box, free on cost |
+| Music / voice cloning | 4 | 8 | vidIQ |
+| IG/TikTok structured data | 5 | 8 | vidIQ |
+| Titles / scripts / replies | 9 | 8 | tie |
+
+**Bottom line:** nova-free covers roughly 70% of what Nova uses vidIQ for, at zero cost and no
+monthly cap, and it beats vidIQ on the two things that matter most day to day: own-channel
+analytics and transcript volume. The remaining 30% is keyword volume numbers, cross-channel
+discovery, audience overlap, historical packaging archives, and turnkey media generation.
+
+Head-to-head on `legend of the dragon`: vidIQ gave a real volume figure (9,761/month) but 11 of
+its 20 related terms drifted to the unrelated film "legend of the white dragon". nova-free gave
+14 on-topic autocomplete terms for free. Keep vidIQ for the volume number when it changes a
+decision; use nova-free for search language and everything else.
+
+## Build order (done)
+
+1. Done: `nova-free` CLI, `scripts/nova_free.py` + `scripts/bootstrap.sh`.
+2. Done: `yt-dlp` installed (2026.10.26) in the tool venv; captions API is the primary transcript
+   route, yt-dlp the fallback for public videos.
+3. Done: keyword research (autocomplete + Google Trends via pytrends).
+4. Done: outlier and trending scripts (breakout vs channel baseline, VPH ranking).
+5. Open: packaging loop (LLM titles + ComfyUI thumbnails + vision critique).
+6. Open: ffmpeg wrapper for compose/edit and Piper TTS.
+7. Open: snapshot cron for title/thumbnail change tracking (starts the archive).
 
 ## Links
 
