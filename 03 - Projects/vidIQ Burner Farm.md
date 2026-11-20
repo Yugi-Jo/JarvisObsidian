@@ -158,6 +158,11 @@ an account, and a lost race removes its row again. `grow` shells out to the race
 Expected: one burner per race on a fresh list, occasional whole-race losses on a stale
 one. Cost of a loss: ~3 minutes, nothing else.
 
+**Exit hygiene (fixed same day):** an exit used to be reusable, and burners #3 and #5
+both signed up from `141.94.22.37`. `exit_pool.spend()` now marks an exit `used` on
+success and `fetch_live()` never offers it again (verified: the spent IP no longer
+appears in a 55-exit harvest). One IP per burner, permanently.
+
 ## When to grow
 
 Work in credits: research calls are 5 each, shorts 10, long-form watch 25, thumbnail gen 22,
