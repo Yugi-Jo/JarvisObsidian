@@ -524,7 +524,7 @@ Each video follows a decay curve: 100% of first-month views in month 1, dropping
 
 - **Creator:** Joel
 - **Channel:** Yugi Jo — [@yugi_jo](https://youtube.com/@yugi_jo) (ID: UC3lTROT3W1SPPX3lhRAStDg)
-- **Subscribers:** 1,530
+- **Subscribers:** 1,570
 - **Goals:** 2K subs by end of 2026, 10K by end of 2027
 - **Cadence aim:** one mid-tier video per week plus one big research piece per month
 
