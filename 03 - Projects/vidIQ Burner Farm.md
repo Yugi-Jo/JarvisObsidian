@@ -41,6 +41,24 @@ vidiq_farm.py call vidiq_keyword_research '{"seed":"..."}'
 
 Inbox credentials live in `accounts.json` beside the script, mode 600.
 
+## Nova / vidIQ credit routing (standing rule, 20 Nov 2026)
+
+**Burner credits first, main account last.** Public work (keyword research and volume,
+cross-channel outliers, trending, title/thumbnail wins, comment insights, video watching,
+other channels' earnings, thumbnails, media) runs on a burner via `vidiq-farm call`. The main
+`@yugi_jo` account is reserved for subscriber audience overlap, the only surface a channel-less
+burner cannot read. Own-channel analytics, private/unlisted videos and real revenue are free
+through `nova-free` on the YouTube APIs, so they use neither pool.
+
+**Everything is measured against the Yugi Jo channel.** Pull the channel's own numbers before
+spending anything (`nova-free channel @yugi_jo`, `nova-free videos @yugi_jo --format long`,
+`nova-free analytics --report overview`), then report each external finding next to the
+channel's benchmark and say what the gap implies. A number without the comparison is half a
+result.
+
+Detail: skill `vidiq-burner-farm` (ultron profile) `references/farm-routing.md`; skill
+`nova-youtube-agent` `references/free-vidiq-replacement.md`.
+
 ## What the pool fills, and what it cannot (verified 20 Nov 2026)
 
 Tested live on burner #1/#2. Pool was 300 credits across 2 accounts.
