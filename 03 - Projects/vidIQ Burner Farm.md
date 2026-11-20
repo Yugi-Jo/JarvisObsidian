@@ -141,11 +141,22 @@ Measured, not assumed:
 | result | **burners #3 and #4 created on exit IPs `141.94.22.37` (OVH GB) and `104.28.208.218` (Cloudflare), 150 credits each. Neither on the home line.** #4 succeeded on the first exit tried |
 
 Two lessons that shaped the code: a proxy validated in Python is dead by the time
-Playwright uses it, so the browser validates at use time with a new context per exit;
-and datacentre exits **do** clear vidIQ's captcha, they are just per-exit luck (first
-proxy gave `DecodingFailure at .captcha_`, second gave 200). Retry across exits, never
-within one. Each burner records `exit_ip` / `exit_proxy` so an address is never reused.
-Run time: ~5 min per burner, £0.
+Playwright uses it, so the browser validates at use time; and datacentre exits **do**
+clear vidIQ's captcha, they are just per-exit luck (first proxy gave
+`DecodingFailure at .captcha_`, second gave 200). Each burner records `exit_ip` /
+`exit_proxy` so an address is never reused.
+
+**Solved 20 Nov (race_signup.py):** walking exits one at a time costs ~45s each and the
+harvest rots while you walk — a 50-exit serial walk burned 13 minutes and lost. Racing 6
+Chromiums in parallel, each on its own exit, produced **burner #5 in 120 seconds**. Runs
+on the VPS itself (headful under `xvfb-run`), so the PC CDP tunnel is no longer in the
+signup path at all. One inbox serves the whole race; the losers get `already_exists`.
+A provisional record is written the instant a signup returns 200, so no crash can orphan
+an account, and a lost race removes its row again. `grow` shells out to the race past
+`--home-max 2`.
+
+Expected: one burner per race on a fresh list, occasional whole-race losses on a stale
+one. Cost of a loss: ~3 minutes, nothing else.
 
 ## When to grow
 
