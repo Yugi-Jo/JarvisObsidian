@@ -168,6 +168,13 @@ Three signal errors found by measurement:
 Also: never `b.close()` a CDP-connection — it can take Joel's Chrome down and kill every
 worker. `teardown()` closes the context instead.
 
+**The cron path (verified end to end):** wrapper wakes the PC Chrome, then calls
+`grow`, which shells out to `race_signup.py` — **not** wrapped in `xvfb-run` (that was
+the leftover bug that would have made every grown burner fail silently). The race now
+preflights the CDP connection and exits with `PC Chrome not reachable` in a second
+rather than burning 18 exits. The wrapper prints the real `Error:` line and counts
+consecutive failures in `.grow_failures`, turning three in a row into an explicit ALERT.
+
 Expected: one burner per race on a fresh list, occasional whole-race losses on a stale
 one. Cost of a loss: ~3 minutes, nothing else.
 
